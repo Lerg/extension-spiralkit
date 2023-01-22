@@ -1,0 +1,6 @@
+name: "native"
+
+platforms:
+    common:
+        context:
+            flags: ["-std=c++17"]

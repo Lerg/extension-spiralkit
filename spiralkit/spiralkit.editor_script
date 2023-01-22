@@ -1,0 +1,27 @@
+local _M = {}
+
+local tag = 'Spiral Kit:'
+
+function _M.get_commands()
+	local commands = {}
+	local import_assets = {
+		label = 'Spiral Kit - Import Assets',
+		locations = {'Edit'},
+		active = function()
+			return true
+		end,
+		run = function()
+			return {
+				{
+					action = 'shell',
+					command = {'./spiralkit/import_assets.py'}
+				}
+			}
+		end
+	}
+
+	table.insert(commands, import_assets)
+	return commands
+end
+
+return _M

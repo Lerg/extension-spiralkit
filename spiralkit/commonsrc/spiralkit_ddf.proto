@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package dmGameSystemDDF;
+
+import "ddf/ddf_extensions.proto";
+import "ddf/ddf_math.proto";
+import "script/ddf_script.proto";
+
+option java_package = "com.dynamo.spiralkit.proto";
+option java_outer_classname = "Spiralkit";
+
+message SpiralkitDesc
+{
+	optional string name = 1;
+}

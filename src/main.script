@@ -1,0 +1,12 @@
+local function window_listener(self, event, data)
+	if event == window.WINDOW_EVENT_RESIZED then
+		spiralkitext.on_window_resize(data.width, data.height)
+	end
+end
+
+function init(self)
+	spiralkitext.init()
+	spiralkitext.on_window_resize(window.get_size())
+	window.set_listener(window_listener)
+	native.init()
+end

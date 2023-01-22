@@ -1,0 +1,51 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build",
+			"type": "shell",
+			"group": { "kind": "build", "isDefault": true },
+			"problemMatcher": [],
+			"command": "bash",
+			"osx": { "args": ["build_macos.sh"] },
+			"linux": { "args": [".vscode/defold.sh", "build", "Linux"] },
+			"windows": {
+				"args": [".vscode/defold.sh", "build", "Windows"],
+				"program": { "command": "C:/Program Files/Git/bin/bash" }
+			}
+		},
+	],
+	"inputs": [
+		{
+			"id": "variant",
+			"description": "Select the variant to build",
+			"type": "pickString",
+			"options": [
+				{ "value": "Debug" },
+				{ "value": "Release" }
+			]
+		},
+		{
+			"id": "platform_to_build",
+			"description": "Select the platform to build",
+			"type": "pickString",
+			"options": [
+				{ "value": "iOS" },
+				{ "value": "Android" },
+				{ "value": "macOS" },
+				{ "value": "Windows" },
+				{ "value": "Linux" },
+				{ "value": "HTML5" }
+			]
+		},
+		{
+			"id": "platform_to_deploy",
+			"description": "Select the platform to deploy",
+			"type": "pickString",
+			"options": [
+				{ "value": "iOS" },
+				{ "value": "Android" }
+			]
+		}
+	]
+}
