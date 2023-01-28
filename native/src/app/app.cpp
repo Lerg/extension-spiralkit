@@ -5,6 +5,8 @@
 #include <spiralkit/spiralkit.h>
 #include "assets.h"
 #include "scenes/menu_scene.h"
+#include "scenes/about_scene.h"
+#include "scenes/play_scene.h"
 
 using namespace spiralkit;
 
@@ -15,9 +17,13 @@ namespace app {
 		dmGameObject::AcquireInputFocus(collection, go_instance);
 
 		SceneManager::popupShadeAsset = assets::sprites::popup_shade;
-		_menu_scene = new MenuScene();
-		SceneManager::Add(_menu_scene);
-		SceneManager::Show(_menu_scene->name);
+		_menuScene = new MenuScene();
+		_aboutScene = new AboutScene();
+		_playScene = new PlayScene();
+		SceneManager::Add(_menuScene);
+		SceneManager::Add(_aboutScene);
+		SceneManager::Add(_playScene);
+		SceneManager::Show(_menuScene->name);
 	}
 
 	App::~App() {}

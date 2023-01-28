@@ -31,7 +31,7 @@ embedded_components {
   "blend_mode: BLEND_MODE_ALPHA\n"
   "line_break: false\n"
   "text: \"\"\n"
-  "font: \"/builtins/fonts/system_font.font\"\n"
+  "font: \"/assets/fonts/system.font\"\n"
   "material: \"/builtins/fonts/label-df.material\"\n"
   ""
   position {
