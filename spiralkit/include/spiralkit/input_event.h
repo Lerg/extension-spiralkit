@@ -8,7 +8,8 @@ namespace spiralkit {
 	enum InputEventType {
 		InputEventType_Touch,
 		InputEventType_Mouse,
-		InputEventType_Key
+		InputEventType_Key,
+		InputEventType_Gamepad
 	};
 
 	enum InputEventPhase {
@@ -23,7 +24,7 @@ namespace spiralkit {
 	};
 
 	struct TouchEvent : InputEvent {
-		uint64_t id;
+		uint64_t id = 0;
 		Vector2i position;
 		InputEventPhase phase;
 		TouchEvent(uint64_t id, Vector2i position, InputEventPhase phase)
@@ -31,10 +32,26 @@ namespace spiralkit {
 	};
 
 	struct KeyEvent : InputEvent {
-		uint64_t id;
+		uint64_t id = 0;
 		InputEventPhase phase;
 		KeyEvent(uint64_t id, InputEventPhase phase)
 		: InputEvent(InputEventType_Key), id(id), phase(phase) {}
+	};
+
+	struct MouseEvent : InputEvent {
+		uint64_t id = 0;
+		Vector2i position;
+		InputEventPhase phase;
+		MouseEvent(uint64_t id, Vector2i position, InputEventPhase phase)
+		: InputEvent(InputEventType_Mouse), id(id), position(position), phase(phase) {}
+	};
+
+	struct GamepadEvent : InputEvent {
+		uint64_t id = 0;
+		InputEventPhase phase;
+		float value = 0;
+		GamepadEvent(uint64_t id, InputEventPhase phase, float value)
+		: InputEvent(InputEventType_Gamepad), id(id), phase(phase), value(value) {}
 	};
 }
 

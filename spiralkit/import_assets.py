@@ -34,6 +34,62 @@ fr'''{shift}"embedded_components {{\n"
   "  type: \"factory\"\n"
   "  data: \"prototype: \\\"{factory_path}\\\"\\n"
   "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
+  "\"\n"
+  "  position {{\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }}\n"
+  "  rotation {{\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }}\n"
+  "}}\n"
+'''
+		shift = '  '
+	result = result + \
+'''  ""
+  position {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
+'''
+	return result
+
+def generate_sound_components(name, sounds) -> str:
+	result = \
+f'''embedded_instances {{
+  id: "{name}"
+  data: '''
+	shift = ''
+	for sound in sounds:
+		result = result + \
+fr'''{shift}"embedded_components {{\n"
+  "  id: \"{sound['name']}\"\n"
+  "  type: \"sound\"\n"
+  "  data: \"sound: \\\"{sound['path']}\\\"\\n"
+  "looping: {'1' if sound['is_loop'] else '0'}\\n"
+  "group: \\\"master\\\"\\n"
+  "gain: 1.0\\n"
+  "pan: 0.0\\n"
+  "speed: 1.0\\n"
+  "loopcount: 0\\n"
   "\"\n"
   "  position {{\n"
   "    x: 0.0\n"
@@ -100,6 +156,14 @@ for root, subdirs, files in os.walk('assets/labels'):
 			label_infos.append({'name': file.split('.')[0], 'height': height})
 
 print('Finding sounds')
+# Collect info of labels
+for root, subdirs, files in os.walk('assets/sounds'):
+	for file in files:
+		if file.endswith('.wav'):
+			sound_path = os.path.join(root, file)
+			print(sound_path)
+			name = file.split('.')[0]
+			sound_infos.append({'name': name, 'path': '/' + sound_path, 'is_loop': name.endswith('_loop')})
 
 print('Finding particlefx')
 # Collect info of particlefx
@@ -161,11 +225,7 @@ if len(label_infos) > 0:
 		factories.append([label_name, f'/assets/labels/{label_name}.go'])
 	f.write(generate_factories('labels', factories))
 if len(sound_infos) > 0:
-	factories = []
-	for sound in sound_infos:
-		sound_name = sound['name']
-		factories.append([sound_name, f'/assets/sounds/{sound_name}.go'])
-	f.write(generate_factories('sounds', factories))
+	f.write(generate_sound_components('sounds', sound_infos))
 if len(particlefx_infos) > 0:
 	factories = []
 	for particlefx in particlefx_infos:
@@ -204,7 +264,7 @@ if len(label_infos) > 0:
 if len(sound_infos) > 0:
 	f.write('	namespace sounds {\n')
 	for sound in sound_infos:
-		f.write(f'''		static const asset::Sound {path_to_id(sound['name'])}("/assets/sounds#{sound['name']}");\n''')
+		f.write(f'''		static const asset::Sound {path_to_id(sound['name'])}("/assets/sounds#{sound['name']}", "{sound['name']}");\n''')
 		pass
 	f.write('	}\n')
 if len(particlefx_infos) > 0:

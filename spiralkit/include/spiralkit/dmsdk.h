@@ -34,4 +34,8 @@ namespace dmScript {
 	uint32_t CheckDDF(lua_State* L, const dmDDF::Descriptor* descriptor, char* buffer, uint32_t buffer_size, int index);
 }
 
+namespace dmSound {
+	const uint32_t INVALID_PLAY_ID = 0xffffffff;
+}
+
 #endif

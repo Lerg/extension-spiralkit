@@ -12,13 +12,11 @@ namespace spiralkit {
 			SkLabel(asset::Label asset, SkObject *parent = nullptr) {
 				identifier = Defold::FactoryCreate(asset.path);
 				this->parent = parent;
-				const dmGameObject::HInstance go_instance = dmScript::CheckGOInstance(spiralkit::Defold::L);
-				const dmGameObject::HCollection collection = dmGameObject::GetCollection(go_instance);
-				instance = dmGameObject::GetInstanceFromIdentifier(collection, identifier);
+				instance = dmGameObject::GetInstanceFromIdentifier(Spiralkit::collection, identifier);
 
 				Init();
 				dmMessage::ResetURL(&componentUrl);
-				componentUrl.m_Socket = dmGameObject::GetMessageSocket(collection);
+				componentUrl.m_Socket = Spiralkit::urlSocket;
 				componentUrl.m_Path = identifier;
 				componentUrl.m_Fragment = hashes::component;
 			}

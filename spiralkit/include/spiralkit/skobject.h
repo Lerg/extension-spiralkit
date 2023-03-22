@@ -230,7 +230,7 @@ namespace spiralkit {
 						is_after = true;
 						child_index = i;
 						child->parent = nullptr;
-						dmGameObject::SetParent(child->instance, nullptr);
+						dmGameObject::SetParent(child->instance, 0);
 					}
 				}
 				if (child_index >= 0) {
@@ -273,7 +273,12 @@ namespace spiralkit {
 				if (parent != nullptr) {
 					parent->Remove(this);
 				}
-				dmGameObject::Delete(dmGameObject::GetCollection(instance), instance, false);
+				for (int32_t i = children.Size() - 1; i > 0; --i) {
+					children[i]->Delete();
+				}
+				if (instance != nullptr) {
+					dmGameObject::Delete(dmGameObject::GetCollection(instance), instance, false);
+				}
 				instance = nullptr;
 			}
 
@@ -349,6 +354,15 @@ namespace spiralkit {
 			) {
 				dmVMath::Vector3 scale3D = GetScale3D();
 				Animate(hashes::scale, dmGameObject::PropertyVar(dmVMath::Vector3(scale.x, scale.y, scale3D.getZ())), duration, delay, playback, easing_curve, animation_stopped_callback, animation_stopped_userdata1, animation_stopped_userdata2);
+			}
+
+			inline dmGameObject::PropertyResult GetProperty(dmhash_t property_id, dmGameObject::PropertyDesc &out_value, dmhash_t component_id = 0) {
+				dmGameObject::PropertyOptions property_options;
+				property_options.m_Index = 0;
+				property_options.m_HasKey = 0;
+				dmGameObject::PropertyResult result = dmGameObject::GetProperty(instance, component_id, property_id, property_options, out_value);
+				_CheckPropertyResult(result);
+				return result;
 			}
 
 			inline dmGameObject::PropertyResult SetProperty(dmhash_t property_id, const dmGameObject::PropertyVar& property_var, dmhash_t component_id = 0) {

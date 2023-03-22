@@ -16,7 +16,7 @@ emitters {
   }
   tile_source: "/builtins/graphics/particle_blob.tilesource"
   animation: "anim"
-  material: "/main/particlefx.material"
+  material: "/render/materials/particlefx.material"
   blend_mode: BLEND_MODE_ADD
   particle_orientation: PARTICLE_ORIENTATION_DEFAULT
   inherit_velocity: 0.0

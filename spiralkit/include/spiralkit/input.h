@@ -142,6 +142,8 @@ namespace spiralkit {
 		static const dmhash_t MOUSE_BUTTON_6 = dmHashString64("mouse_button_6");
 		static const dmhash_t MOUSE_BUTTON_7 = dmHashString64("mouse_button_7");
 		static const dmhash_t MOUSE_BUTTON_8 = dmHashString64("mouse_button_8");
+		static const dmhash_t MOUSE_ENTER = dmHashString64("mouse_enter");
+		static const dmhash_t MOUSE_EXIT = dmHashString64("mouse_exit");
 		static const dmhash_t TOUCH = dmHashString64("touch");
 		static const dmhash_t GAMEPAD_LSTICK_LEFT = dmHashString64("gamepad_lstick_left");
 		static const dmhash_t GAMEPAD_LSTICK_RIGHT = dmHashString64("gamepad_lstick_right");
@@ -168,8 +170,8 @@ namespace spiralkit {
 		static const dmhash_t GAMEPAD_START = dmHashString64("gamepad_start");
 		static const dmhash_t GAMEPAD_BACK = dmHashString64("gamepad_back");
 		static const dmhash_t GAMEPAD_GUIDE = dmHashString64("gamepad_guide");
-		static const dmhash_t GAMEPAD_CONNECTED = dmHashString64("gamepad_connected");
-		static const dmhash_t GAMEPAD_DISCONNECTED = dmHashString64("gamepad_disconnected");
+		static const dmhash_t GAMEPAD_CONNECT = dmHashString64("gamepad_connected");
+		static const dmhash_t GAMEPAD_DISCONNECT = dmHashString64("gamepad_disconnected");
 		static const dmhash_t TEXT = dmHashString64("text");
 		static const dmhash_t MARKED_TEXT = dmHashString64("marked_text");
 	}

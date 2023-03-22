@@ -4,6 +4,8 @@
 namespace spiralkit {
 	class Platform {
 		public:
+			static const char pathSeparator;
+			static char applicationPath[4096];
 			static bool isAndroid;
 			static bool isiOS;
 			static bool isHTML5;

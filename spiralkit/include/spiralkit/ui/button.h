@@ -5,6 +5,7 @@
 #include "../sksprite.h"
 #include "../sklabel.h"
 #include "../touch_interactive.h"
+#include "../mouse_interactive.h"
 
 namespace spiralkit::ui {
 	enum ButtonState {
@@ -18,31 +19,38 @@ namespace spiralkit::ui {
 
 	class Button : public SkObject {
 		private:
-			SkSprite *_defaultImage = nullptr, *_pressedImage = nullptr;
+			asset::Sprite _defaultSprite, _pressedSprite;
+			SkSprite *_sprite = nullptr;
 			SkLabel *_label = nullptr;
 			TouchInteractive *_touchInteractive = nullptr;
+			MouseInteractive *_mouseInteractive = nullptr;
 			ButtonState _state = ButtonState_Default;
+			bool _isWorkAroundExecuted = false;
 			static bool _OnTouchDefault(TouchInteractive &touch_interactive, const TouchEvent &touch_event);
+			static bool _OnMouseDefault(MouseInteractive &mouse_interactive, const MouseEvent &mouse_event);
 
 		public:
 			ButtonCallback onPress = nullptr;
 			ButtonMoveCallback onMove = nullptr;
 			ButtonCallback onRelease = nullptr;
 
-			Button(asset::Sprite default_image, asset::Sprite pressed_image, asset::Label label, SkObject *parent = nullptr) {
+			Button(asset::Sprite default_sprite, asset::Sprite pressed_sprite, asset::Label label, SkObject *parent = nullptr) {
 				InstanceIdentifierPair game_object = Defold::NewGameObject();
 				instance = game_object.instance;
 				identifier = game_object.identifier;
 				this->parent = parent;
 				Init();
-				_defaultImage = new SkSprite(default_image, this);
-				_pressedImage = new SkSprite(pressed_image, this);
-				_pressedImage->SetIsVisible(false);
-				size = _defaultImage->size;
+				_defaultSprite = default_sprite;
+				_pressedSprite = pressed_sprite;
+				_sprite = new SkSprite(_defaultSprite, this);
+				size = _sprite->size;
 				_label = new SkLabel(label, this);
 				_label->SetScale(0.25 * size.height / label.height);
+
 				_touchInteractive = new TouchInteractive(this);
 				_touchInteractive->onTouch = _OnTouchDefault;
+				_mouseInteractive = new MouseInteractive(this);
+				_mouseInteractive->onMouse = _OnMouseDefault;
 			}
 
 			~Button() {
@@ -50,21 +58,19 @@ namespace spiralkit::ui {
 			}
 
 			void Delete() {
-				delete _defaultImage;
-				delete _pressedImage;
-				delete _label;
 				delete _touchInteractive;
+				delete _mouseInteractive;
+				SkObject::Delete();
 			}
 
 			inline void SetState(ButtonState state) {
+				_state = state;
 				switch (state) {
 					case ButtonState_Default:
-						_defaultImage->SetIsVisible(true);
-						_pressedImage->SetIsVisible(false);
+						_sprite->PlayAnimation(_defaultSprite);
 						break;
 					case ButtonState_Pressed:
-						_defaultImage->SetIsVisible(false);
-						_pressedImage->SetIsVisible(true);
+						_sprite->PlayAnimation(_pressedSprite);
 						break;
 				}
 			}
@@ -77,9 +83,14 @@ namespace spiralkit::ui {
 				SkObject::SetScale(scale);
 			}
 
-			inline void SetSprites(asset::Sprite default_image, asset::Sprite pressed_image) {
-				_defaultImage->PlayAnimation(default_image);
-				_pressedImage->PlayAnimation(pressed_image);
+			inline void SetSprites(asset::Sprite default_sprite, asset::Sprite pressed_sprite) {
+				_defaultSprite = default_sprite;
+				_pressedSprite = pressed_sprite;
+				SetState(_state);
+			}
+
+			void SetIsHighlighted(bool is_highlight) {
+				_sprite->AnimateComponent(_sprite->componentUrl.m_Fragment, spiralkit::hashes::effects_exposure, dmGameObject::PropertyVar(is_highlight ? 1.5 : 1), is_highlight ? 0.5 : 0.2, 0, dmGameObject::PLAYBACK_ONCE_FORWARD, dmEasing::TYPE_OUTQUAD);
 			}
 	};
 }

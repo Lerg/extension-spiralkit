@@ -26,6 +26,7 @@ namespace spiralkit::hashes {
 	static const dmhash_t tint_y = dmHashString64("tint.y");
 	static const dmhash_t tint_z = dmHashString64("tint.z");
 	static const dmhash_t tint_w = dmHashString64("tint.w");
+	static const dmhash_t effects_exposure = dmHashString64("effects.x");
 }
 
 #endif

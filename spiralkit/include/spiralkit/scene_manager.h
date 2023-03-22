@@ -102,6 +102,7 @@ namespace spiralkit {
 
 		public:
 			static void Init();
+			static void Clear();
 
 			inline static void Add(Scene *scene) {
 				if (_loadedScenes.Full()) {
@@ -115,11 +116,10 @@ namespace spiralkit {
 
 			static void Show(dmhash_t name_hash, SceneTransition scene_transition = SceneTransition_None, void *userdata = nullptr) {
 				if (_currentScene != nullptr) {
+					_currentScene->OnWillHide();
 					if (_currentScene->name == name_hash) {
-						_currentScene->OnWillHide();
 						_currentScene->OnDidHide();
 					} else {
-						_currentScene->OnWillHide();
 						_AnimateTransition(_currentScene, scene_transition, false);
 					}
 				}

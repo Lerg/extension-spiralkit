@@ -3,7 +3,7 @@
 
 namespace spiralkit::ui {
 	bool Button::_OnTouchDefault(TouchInteractive &touch_interactive, const TouchEvent &touch_event) {
-		Button *button = (Button *)touch_interactive.object;
+		Button *button = (Button*)touch_interactive.object;
 		if (touch_event.phase == InputEventPhase_Pressed) {
 			InputManager::SetTouchFocus(touch_event.id, &touch_interactive);
 			touch_interactive.isFocused = true;
@@ -30,5 +30,22 @@ namespace spiralkit::ui {
 			return true;
 		}
 		return false;
+	}
+
+	bool Button::_OnMouseDefault(MouseInteractive &mouse_interactive, const MouseEvent &mouse_event) {
+		Button *button = (Button*)mouse_interactive.object;
+		if (mouse_event.phase == InputEventPhase_Moved) {
+			if (button->_isWorkAroundExecuted) {
+				if (mouse_event.id == input::MOUSE_ENTER) {
+					button->SetIsHighlighted(true);
+				} else if (mouse_event.id == input::MOUSE_EXIT) {
+					button->SetIsHighlighted(false);
+				}
+			} else {
+				button->_isWorkAroundExecuted = true;
+				mouse_interactive.isOver = false;
+			}
+		}
+		return true;
 	}
 }

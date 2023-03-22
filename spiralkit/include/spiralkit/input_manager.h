@@ -9,6 +9,8 @@
 #include "input.h"
 #include "touch_interactive.h"
 #include "key_interactive.h"
+#include "mouse_interactive.h"
+#include "gamepad_interactive.h"
 #include "platform.h"
 #include "skobject.h"
 
@@ -25,23 +27,41 @@ namespace spiralkit {
 		}
 	};
 
+	struct GamepadInteractiveSortPred {
+		inline bool operator() (const GamepadInteractive *a, const GamepadInteractive *b) {
+			return a->object->GetWorldPosition3D().getZ() > b->object->GetWorldPosition3D().getZ();
+		}
+	};
+
 	class InputManager {
 		private:
 			static dmArray<TouchInteractive*> _touchListeners;
 			static dmHashTable64<TouchInteractive*> _focusedTouchListeners;
 			static dmArray<KeyInteractive*> _keyListeners;
+			static dmArray<MouseInteractive*> _mouseListeners;
+			static dmArray<GamepadInteractive*> _gamepadListeners;
 			static dmHashTable64<bool> _keyActions;
 			static dmHashTable64<bool> _mouseActions;
 			static dmHashTable64<bool> _gamepadActions;
+			static dmHashTable64<bool> _actionDown;
 
 			InputManager();
+
 		public:
+			static InputEventType lastInputType;
+
 			static void Init() {
+				lastInputType = InputEventType_Touch;
 				_touchListeners.SetCapacity(32);
 				_focusedTouchListeners.SetCapacity(24, 32);
+				_keyListeners.SetCapacity(32);
+				_mouseListeners.SetCapacity(32);
+				_gamepadListeners.SetCapacity(32);
+
 				_keyActions.SetCapacity(72, 124);
 				_mouseActions.SetCapacity(16, 13);
 				_gamepadActions.SetCapacity(8, 27);
+				_actionDown.SetCapacity(100, _keyActions.Capacity() + _mouseActions.Capacity() + _gamepadActions.Capacity());
 
 				_keyActions.Put(input::KEY_SPACE, true);
 				_keyActions.Put(input::KEY_EXCLAMATIONMARK, true);
@@ -207,9 +227,11 @@ namespace spiralkit {
 				_gamepadActions.Put(input::GAMEPAD_START, true);
 				_gamepadActions.Put(input::GAMEPAD_BACK, true);
 				_gamepadActions.Put(input::GAMEPAD_GUIDE, true);
-				_gamepadActions.Put(input::GAMEPAD_CONNECTED, true);
-				_gamepadActions.Put(input::GAMEPAD_DISCONNECTED, true);
+				_gamepadActions.Put(input::GAMEPAD_CONNECT, true);
+				_gamepadActions.Put(input::GAMEPAD_DISCONNECT, true);
 			}
+
+			#pragma region Touch
 
 			inline static void SetTouchFocus(uint64_t id, TouchInteractive *target) {
 				if (_focusedTouchListeners.Full()) {
@@ -287,17 +309,64 @@ namespace spiralkit {
 				}
 			}
 
+			#pragma endregion
+
+			#pragma region Mouse
+
+			inline static void AddMouseListener(MouseInteractive *listener) {
+				if (_mouseListeners.Full()) {
+					_mouseListeners.OffsetCapacity(32);
+				}
+				_mouseListeners.Push(listener);
+			}
+
+			inline static void RemoveMouseListener(MouseInteractive *listener) {
+				_mouseListeners.EraseSwap(dmArrayUtil::GetIndexOf(&_mouseListeners, listener));
+			}
+
 			static void OnMouseClick(const dmGameObject::InputAction &action) {
 
 			}
 
 			static void OnMouseMove(const dmGameObject::InputAction &action) {
-
+				InputEventPhase phase = InputEventPhase_Moved;
+				const Vector2i mouse_position = Vector2i(action.m_ScreenX, action.m_ScreenY);
+				const MouseEvent mouse_move_event(0, mouse_position, phase);
+				const MouseEvent mouse_enter_event(input::MOUSE_ENTER, mouse_position, phase);
+				const MouseEvent mouse_exit_event(input::MOUSE_EXIT, mouse_position, phase);
+				// Tempopary array to safely iterate while the main array may change size.
+				dmArray<MouseInteractive*> tmp_listeners;
+				tmp_listeners.SetCapacity(_mouseListeners.Size());
+				for (uint32_t i = 0; i < _mouseListeners.Size(); ++i) {
+					tmp_listeners.Push(_mouseListeners[i]);
+				}
+				for (uint32_t i = 0; i < tmp_listeners.Size(); ++i) {
+					MouseInteractive *mouse_interactive = tmp_listeners[i];
+					bool is_taken = false;
+					if (mouse_interactive->object->IsEnabled() && mouse_interactive->object->IsVisible()) {
+						if (mouse_interactive->IsInside(mouse_position)) {
+							if (!mouse_interactive->isOver) {
+								mouse_interactive->isOver = true;
+								mouse_interactive->onMouse(*mouse_interactive, mouse_enter_event);
+							}
+							if (!is_taken) {
+								is_taken = mouse_interactive->onMouse(*mouse_interactive, mouse_move_event);
+							}
+						} else if (mouse_interactive->isOver) {
+							mouse_interactive->isOver = false;
+							mouse_interactive->onMouse(*mouse_interactive, mouse_exit_event);
+						}
+					}
+				}
 			}
 
 			static void OnMouseWheel(const dmGameObject::InputAction &action) {
 
 			}
+
+			#pragma endregion
+
+			#pragma region Key
 
 			static void OnText(const dmGameObject::InputAction &action) {
 
@@ -337,14 +406,56 @@ namespace spiralkit {
 				}
 			}
 
-			static void OnGamepad(const dmGameObject::InputAction &action) {
+			#pragma endregion
 
+			#pragma region Gamepad
+
+			inline static void AddGamepadListener(GamepadInteractive *listener) {
+				if (_gamepadListeners.Full()) {
+					_gamepadListeners.OffsetCapacity(32);
+				}
+				_gamepadListeners.Push(listener);
 			}
 
+			inline static void RemoveGamepadListener(GamepadInteractive *listener) {
+				_gamepadListeners.EraseSwap(dmArrayUtil::GetIndexOf(&_gamepadListeners, listener));
+			}
+
+			static void OnGamepad(const dmGameObject::InputAction &action) {
+				InputEventPhase phase;
+				if (action.m_Pressed) {
+					phase = InputEventPhase_Pressed;
+				} else if (action.m_Released) {
+					phase = InputEventPhase_Released;
+				} else {
+					return;
+				}
+				const GamepadEvent gamepad_event(action.m_ActionId, phase, action.m_Value);
+				std::sort(_gamepadListeners.Begin(), _gamepadListeners.End(), GamepadInteractiveSortPred());
+				for (uint32_t i = 0; i < _gamepadListeners.Size(); ++i) {
+					GamepadInteractive *gamepad_interactive = _gamepadListeners[i];
+					if (
+						gamepad_interactive->object->IsEnabled()
+						&& gamepad_interactive->object->IsVisible()
+						&& gamepad_interactive->onGamepad(*gamepad_interactive, gamepad_event)
+					) {
+						break;
+					}
+				}
+			}
+
+			#pragma endregion
+
 			static void OnInput(dmGameObject::InputAction &input_action) {
+				if (input_action.m_Pressed) {
+					_actionDown.Put(input_action.m_ActionId, true);
+				} else if (input_action.m_Released) {
+					_actionDown.Put(input_action.m_ActionId, false);
+				}
 				if (Platform::isMobile) {
 					if (input_action.m_ActionId == input::TOUCH) {
 						OnTouch(input_action);
+						lastInputType = InputEventType_Touch;
 					}
 				} else {
 					if (input_action.m_ActionId == 0) {
@@ -362,8 +473,10 @@ namespace spiralkit {
 						input_action.m_Touch[0].m_Phase = input_action.m_Pressed != 0 ? dmHID::PHASE_BEGAN : (input_action.m_Released != 0 ? dmHID::PHASE_ENDED : dmHID::PHASE_MOVED);
 						input_action.m_Touch[0].m_TapCount = 0;
 						OnTouch(input_action);
+						lastInputType = InputEventType_Touch;
 					} else if (input_action.m_ActionId == input::MOUSE_BUTTON_LEFT || input_action.m_ActionId == input::MOUSE_BUTTON_RIGHT) {
 						OnMouseClick(input_action);
+						lastInputType = InputEventType_Mouse;
 					} else if (input_action.m_ActionId == input::MOUSE_WHEEL_UP || input_action.m_ActionId == input::MOUSE_WHEEL_DOWN) {
 						if (input_action.m_ActionId == input::MOUSE_WHEEL_DOWN) {
 							input_action.m_Value = -input_action.m_Value;
@@ -371,15 +484,33 @@ namespace spiralkit {
 						OnMouseWheel(input_action);
 					} else if (input_action.m_ActionId == input::TEXT) {
 						OnText(input_action);
-					} else if (input_action.m_ActionId == input::KEY_ENTER) {
-						//action.text = "/n";
-						OnText(input_action);
 					} else if (dmHashtableUtil::Exists(&_keyActions, input_action.m_ActionId)) {
 						OnKey(input_action);
+						lastInputType = InputEventType_Key;
+						/*if (input_action.m_ActionId == input::KEY_ENTER) {
+							memcpy(input_action.m_Text, "\n", 2);
+							input_action.m_HasText = true;
+							input_action.m_TextCount = 2;
+							OnText(input_action);
+						}*/
 					} else if (dmHashtableUtil::Exists(&_gamepadActions, input_action.m_ActionId)) {
 						OnGamepad(input_action);
+						lastInputType = InputEventType_Gamepad;
 					}
 				}
+			}
+
+			static bool IsActionDown(dmhash_t action_id) {
+				bool *value = _actionDown.Get(action_id);
+				if (value != nullptr) {
+					return *value;
+				} else {
+					return false;
+				}
+			}
+
+			static bool IsController() {
+				return lastInputType == InputEventType_Key || lastInputType == InputEventType_Gamepad;
 			}
 	};
 }

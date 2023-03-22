@@ -1,5 +1,4 @@
 #include <spiralkit/input_manager.h>
-#include <spiralkit/skobject.h>
 
 namespace spiralkit {
 	KeyInteractive::KeyInteractive(SkObject *object)

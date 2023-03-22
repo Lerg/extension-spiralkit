@@ -22,10 +22,22 @@ namespace spiralkit {
 		_loadedScenes.SetCapacity(21, 32);
 		_popups.SetCapacity(32);
 		_popupShades.SetCapacity(32);
-		const InstanceIdentifierPair root_game_object = Defold::NewGameObject();
-		_root = new SkObject(root_game_object.instance, root_game_object.identifier);
-		_touchInteractive = new TouchInteractive(_root);
-		_touchInteractive->onTouch = _OnTouchBlock;
+		if (_root == nullptr) {
+			const InstanceIdentifierPair root_game_object = Defold::NewGameObject();
+			_root = new SkObject(root_game_object.instance, root_game_object.identifier);
+			_touchInteractive = new TouchInteractive(_root);
+			_touchInteractive->onTouch = _OnTouchBlock;
+		}
+	}
+
+	void SceneManager::Clear() {
+		_currentScene = nullptr;
+		_loadedScenes.Clear();
+		_popups.SetSize(0);
+		_popupShades.SetSize(0);
+		delete _touchInteractive;
+		delete _root;
+		_root = nullptr;
 	}
 
 	void SceneManager::ShowPopup(dmhash_t name_hash, SceneTransition scene_transition = SceneTransition_None, void *userdata = nullptr) {

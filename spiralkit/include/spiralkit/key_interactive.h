@@ -5,6 +5,7 @@
 
 namespace spiralkit {
 	class KeyInteractive; // Forward reference.
+	class SkObject;
 	typedef bool (*KeyInteractiveOnKeyCallback)(KeyInteractive &key_interactive, const KeyEvent &key_event);
 
 	class KeyInteractive {
