@@ -11,6 +11,7 @@
 #include <dlib/path.h>
 #include <dlib/sys.h>
 #include "asset.h"
+#include "spiralkit.h"
 
 namespace spiralkit {
 	struct InstanceIdentifierPair {
@@ -37,8 +38,7 @@ namespace spiralkit {
 			}
 
 			static InstanceIdentifierPair NewGameObject() {
-				const dmGameObject::HInstance go_instance = dmScript::CheckGOInstance(L);
-				const dmGameObject::HCollection collection = dmGameObject::GetCollection(go_instance);
+				const dmGameObject::HCollection collection = Spiralkit::collection;//dmGameObject::GetCollection(go_instance);
 				const uint32_t index = dmGameObject::AcquireInstanceIndex(collection);
 				if (index == dmGameObject::INVALID_INSTANCE_POOL_INDEX) {
 					dmLogError("Failed to acquire instance index for scene root object.");
@@ -53,17 +53,6 @@ namespace spiralkit {
 					dmLogError("Failed to set identifier for scene root object.");
 				}
 				return InstanceIdentifierPair(instance, identifier);
-			}
-
-			static dmGameObject::HInstance NewImage(asset::Sprite image, dmGameObject::HInstance parent = nullptr) {
-				const dmhash_t identifier = Defold::FactoryCreate(image.path);
-				const dmGameObject::HInstance go_instance = dmScript::CheckGOInstance(L);
-				const dmGameObject::HCollection collection = dmGameObject::GetCollection(go_instance);
-				const dmGameObject::HInstance instance = dmGameObject::GetInstanceFromIdentifier(collection, identifier);
-				if (parent != nullptr) {
-					dmGameObject::SetParent(instance, parent);
-				}
-				return instance;
 			}
 
 			static const char *GetSystemName() {

@@ -2,8 +2,11 @@
 #include <stddef.h>
 
 #include <dmsdk/extension/extension.h>
+#include <dmsdk/engine/extension.h>
 #include <spiralkit/spiralkit.h>
 #include <spiralkit/signal_manager.h>
+#include <spiralkit/defold.h>
+#include <spiralkit/input_manager.h>
 
 #include "extension.h"
 
@@ -38,6 +41,7 @@ static const luaL_reg extension_functions[] = {
 };
 
 dmExtension::Result APP_INITIALIZE(dmExtension::AppParams *params) {
+	spiralkit::InputManager::hidContext = dmEngine::GetHIDContext(params);
 	return dmExtension::RESULT_OK;
 }
 

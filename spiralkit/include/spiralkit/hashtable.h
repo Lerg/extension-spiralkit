@@ -16,7 +16,7 @@ namespace dmHashtableUtil {
 	};
 
 	template <typename K, typename V>
-	static void OnFindKeyCallback(FindKeyContext<K, V> *context, const K *key, V *value) {
+	inline void OnFindKeyCallback(FindKeyContext<K, V> *context, const K *key, V *value) {
 		if (*value == context->value) {
 			context->key = key;
 		}

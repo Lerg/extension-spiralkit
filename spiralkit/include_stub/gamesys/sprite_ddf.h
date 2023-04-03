@@ -10,6 +10,16 @@ namespace dmGameSystemDDF {
 		float m_Offset;
 		float m_PlaybackRate;
 	};
+
+	struct SetFlipHorizontal {
+		static dmDDF::Descriptor* m_DDFDescriptor;
+		uint32_t m_Flip;
+	};
+
+	struct SetFlipVertical {
+		static dmDDF::Descriptor* m_DDFDescriptor;
+		uint32_t m_Flip;
+	};
 }
 
 #endif

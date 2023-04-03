@@ -40,7 +40,7 @@ namespace spiralkit {
 		_root = nullptr;
 	}
 
-	void SceneManager::ShowPopup(dmhash_t name_hash, SceneTransition scene_transition = SceneTransition_None, void *userdata = nullptr) {
+	void SceneManager::ShowPopup(dmhash_t name_hash, SceneTransition scene_transition, void *userdata) {
 		Scene **entry = _loadedScenes.Get(name_hash);
 		if (entry != nullptr) {
 			SkSprite *popup_shade = new SkSprite(popupShadeAsset, _root);

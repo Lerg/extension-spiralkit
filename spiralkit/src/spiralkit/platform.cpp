@@ -12,4 +12,5 @@ namespace spiralkit {
 	bool Platform::isHTML5 = false;
 	bool Platform::isMobile = false;
 	bool Platform::isDesktop = false;
+	bool Platform::isDebug = false;
 }

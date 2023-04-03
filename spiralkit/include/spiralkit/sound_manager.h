@@ -9,11 +9,14 @@ namespace spiralkit {
 			static dmhash_t _assetPath;
 			SoundManager();
 		public:
+			static bool isMusicOn;
+			static bool isSoundOn;
 			static void Init() {
 				_assetPath = dmHashString64("/assets/sounds");
 			}
 
 			static void Play(asset::Sound sound);
+			static void Stop(asset::Sound sound);
 	};
 }
 

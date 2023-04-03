@@ -44,10 +44,12 @@ namespace spiralkit {
 			static dmHashTable64<bool> _mouseActions;
 			static dmHashTable64<bool> _gamepadActions;
 			static dmHashTable64<bool> _actionDown;
+			static uint32_t _gamepadIndex;
 
 			InputManager();
 
 		public:
+			static dmHID::HContext hidContext;
 			static InputEventType lastInputType;
 
 			static void Init() {
@@ -422,24 +424,31 @@ namespace spiralkit {
 			}
 
 			static void OnGamepad(const dmGameObject::InputAction &action) {
-				InputEventPhase phase;
-				if (action.m_Pressed) {
-					phase = InputEventPhase_Pressed;
-				} else if (action.m_Released) {
-					phase = InputEventPhase_Released;
-				} else {
-					return;
+				if (action.m_ActionId == input::GAMEPAD_CONNECT) {
+					_gamepadIndex = action.m_GamepadIndex;
+					//dmLogInfo("gamepad connected, text count: %d, text: %s", action.m_TextCount, action.m_TextCount > 0 ? action.m_Text : "");
+					//dmLogInfo("m_Gamepads driver, %d %d", hidContext->m_Gamepads[0].m_ButtonCount, hidContext->m_Gamepads[0].m_Connected);
 				}
-				const GamepadEvent gamepad_event(action.m_ActionId, phase, action.m_Value);
-				std::sort(_gamepadListeners.Begin(), _gamepadListeners.End(), GamepadInteractiveSortPred());
-				for (uint32_t i = 0; i < _gamepadListeners.Size(); ++i) {
-					GamepadInteractive *gamepad_interactive = _gamepadListeners[i];
-					if (
-						gamepad_interactive->object->IsEnabled()
-						&& gamepad_interactive->object->IsVisible()
-						&& gamepad_interactive->onGamepad(*gamepad_interactive, gamepad_event)
-					) {
-						break;
+				if (action.m_GamepadIndex == _gamepadIndex) {
+					InputEventPhase phase;
+					if (action.m_Pressed) {
+						phase = InputEventPhase_Pressed;
+					} else if (action.m_Released) {
+						phase = InputEventPhase_Released;
+					} else {
+						return;
+					}
+					const GamepadEvent gamepad_event(action.m_ActionId, phase, action.m_Value);
+					std::sort(_gamepadListeners.Begin(), _gamepadListeners.End(), GamepadInteractiveSortPred());
+					for (uint32_t i = 0; i < _gamepadListeners.Size(); ++i) {
+						GamepadInteractive *gamepad_interactive = _gamepadListeners[i];
+						if (
+							gamepad_interactive->object->IsEnabled()
+							&& gamepad_interactive->object->IsVisible()
+							&& gamepad_interactive->onGamepad(*gamepad_interactive, gamepad_event)
+						) {
+							break;
+						}
 					}
 				}
 			}
@@ -447,6 +456,12 @@ namespace spiralkit {
 			#pragma endregion
 
 			static void OnInput(dmGameObject::InputAction &input_action) {
+				/*if (input_action.m_ActionId == input::GAMEPAD_RAW) {
+					dmLogInfo("raw ind %d, is gamepad %d, has packet %d%s%s", input_action.m_GamepadIndex, input_action.m_IsGamepad, input_action.m_HasGamepadPacket, input_action.m_Pressed ? ", pressed" : "", input_action.m_Released ? ", released" : "");
+					if (input_action.m_GamepadPacket.m_GamepadConnected) {
+
+					}
+				}*/
 				if (input_action.m_Pressed) {
 					_actionDown.Put(input_action.m_ActionId, true);
 				} else if (input_action.m_Released) {

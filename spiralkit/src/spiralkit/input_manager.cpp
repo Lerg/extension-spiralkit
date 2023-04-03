@@ -10,5 +10,7 @@ namespace spiralkit {
 	dmHashTable64<bool> InputManager::_mouseActions;
 	dmHashTable64<bool> InputManager::_gamepadActions;
 	dmHashTable64<bool> InputManager::_actionDown;
+	uint32_t InputManager::_gamepadIndex = 0;
+	dmHID::HContext InputManager::hidContext;
 	InputEventType InputManager::lastInputType;
 }

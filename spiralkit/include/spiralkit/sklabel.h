@@ -48,7 +48,7 @@ namespace spiralkit {
 				char text[512];
   				va_list args;
 				va_start(args, format);
-				vsprintf(text, format, args);
+				vsnprintf(text, sizeof(text), format, args);
 				SetText(text);
 				va_end (args);
 			}

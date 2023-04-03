@@ -13,10 +13,6 @@ namespace spiralkit {
 	struct TouchEvent;
 	class SkSprite;
 
-	static void OnResizeIterateCallback(Vector2i *screen_size, const dmhash_t *key, Scene **scene) {
-		(*scene)->OnResize(*screen_size);
-	}
-
 	enum SceneTransition {
 		SceneTransition_None,
 		SceneTransition_SlideLeft,
@@ -112,6 +108,7 @@ namespace spiralkit {
 				_loadedScenes.Put(scene->name, scene);
 				scene->SetParent(_root);
 				scene->SetIsVisible(false);
+				scene->SetPosition(Vector2(10000, 0));
 			}
 
 			static void Show(dmhash_t name_hash, SceneTransition scene_transition = SceneTransition_None, void *userdata = nullptr) {
@@ -135,7 +132,7 @@ namespace spiralkit {
 				}
 			}
 
-			static void ShowPopup(dmhash_t name_hash, SceneTransition scene_transition, void *userdata);
+			static void ShowPopup(dmhash_t name_hash, SceneTransition scene_transition = SceneTransition_None, void *userdata = nullptr);
 
 			static void HidePopup(SceneTransition scene_transition);
 

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from PIL import Image
 
 assets_src_path = 'assets_src'
@@ -86,7 +87,7 @@ fr'''{shift}"embedded_components {{\n"
   "  data: \"sound: \\\"{sound['path']}\\\"\\n"
   "looping: {'1' if sound['is_loop'] else '0'}\\n"
   "group: \\\"master\\\"\\n"
-  "gain: 1.0\\n"
+  "gain: {sound['gain']}\\n"
   "pan: 0.0\\n"
   "speed: 1.0\\n"
   "loopcount: 0\\n"
@@ -141,6 +142,15 @@ for root, subdirs, files in os.walk(sprites_path):
 			sprite_infos.append({'path': '/' + image_path, 'atlas': atlas, 'name': name, 'width': width, 'height': height})
 			if atlas not in atlas_infos:
 				atlas_infos.append(atlas)
+		elif file.endswith('.json'):
+			json_path = os.path.join(root, file)
+			print(json_path)
+			atlas_and_name = os.path.splitext(json_path.replace(sprites_path + '/', ''))[0]
+			atlas, name = atlas_and_name.split('/', 1)
+			with open(json_path) as json_file:
+				sprite_infos.append({'path': '/' + root + '/', 'atlas': atlas, 'name': name, 'width': 0, 'height': 0, 'animation': json.load(json_file)})
+			if atlas not in atlas_infos:
+				atlas_infos.append(atlas)
 
 print('Finding labels')
 # Collect info of labels
@@ -163,7 +173,15 @@ for root, subdirs, files in os.walk('assets/sounds'):
 			sound_path = os.path.join(root, file)
 			print(sound_path)
 			name = file.split('.')[0]
-			sound_infos.append({'name': name, 'path': '/' + sound_path, 'is_loop': name.endswith('_loop')})
+			json_path = os.path.join(root, name + '.json')
+			settings = {
+				'loop': False,
+				'gain': 1.0
+			}
+			if os.path.exists(json_path):
+				with open(json_path) as json_file:
+					settings = json.load(json_file)
+			sound_infos.append({'name': name, 'path': '/' + sound_path, 'is_loop': settings['loop'], 'gain': settings['gain']})
 
 print('Finding particlefx')
 # Collect info of particlefx
@@ -184,21 +202,44 @@ if len(atlas_infos) > 0 :
 		f = open('assets/' + atlas + '.atlas', 'w')
 		for sprite in sprite_infos:
 			if sprite['atlas'] == atlas:
-				f.write(
+				if sprite.get('animation') != None:
+					animation = sprite['animation']
+					f.write(
+f'''animations {{
+  id: "{sprite['name']}"'''
+					)
+					for frame in animation['frames']:
+						f.write(
 f'''
-animations {{
+  images {{
+    image: "{os.path.normpath(sprite['path'] + frame)}"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }}'''
+						)
+					f.write(
+f'''
+  playback: {animation.get('playback', 'PLAYBACK_ONCE_FORWARD')}
+  fps: {animation.get('fps', 60)}
+  flip_horizontal: {animation.get('flip_horizontal', 0)}
+  flip_vertical: {animation.get('flip_vertical', 0)}
+}}
+'''
+					)
+				else:
+					f.write(
+f'''animations {{
   id: "{sprite['name']}"
   images {{
     image: "{sprite['path']}"
     sprite_trim_mode: SPRITE_TRIM_MODE_OFF
   }}
-  playback: PLAYBACK_LOOP_FORWARD
+  playback: PLAYBACK_ONCE_FORWARD
   fps: 60
   flip_horizontal: 0
   flip_vertical: 0
 }}
 '''
-				)
+					)
 		f.write(
 '''
 margin: 0
@@ -213,17 +254,27 @@ f = open('assets/assets.collection', 'w')
 f.write('''name: "default"
 scale_along_z: 0
 ''')
-if len(atlas_infos) > 0:
-	factories = []
-	for atlas in atlas_infos:
-		factories.append([atlas, f'/assets/sprites/{atlas}.go'])
-	f.write(generate_factories('sprites', factories))
-if len(label_infos) > 0:
-	factories = []
-	for label in label_infos:
-		label_name = label['name']
-		factories.append([label_name, f'/assets/labels/{label_name}.go'])
-	f.write(generate_factories('labels', factories))
+
+sprite_factories = []
+for root, subdirs, files in os.walk('assets/sprites'):
+	for file in files:
+		if file.endswith('.go'):
+			name = file.split('.')[0]
+			factory_path = '/' + os.path.join(root, file)
+			sprite_factories.append([name, factory_path])
+if len(sprite_factories) > 0:
+	f.write(generate_factories('sprites', sprite_factories))
+
+label_factories = []
+for root, subdirs, files in os.walk('assets/labels'):
+	for file in files:
+		if file.endswith('.go'):
+			name = file.split('.')[0]
+			factory_path = '/' + os.path.join(root, file)
+			label_factories.append([name, factory_path])
+if len(label_factories) > 0:
+	f.write(generate_factories('labels', label_factories))
+
 if len(sound_infos) > 0:
 	f.write(generate_sound_components('sounds', sound_infos))
 if len(particlefx_infos) > 0:
@@ -252,25 +303,25 @@ namespace app::assets {
 if len(sprite_infos) > 0:
 	f.write('	namespace sprites {\n')
 	for sprite in sprite_infos:
-		f.write(f'''		static const asset::Sprite {path_to_id(sprite['name'])}("/assets/sprites#{sprite['atlas']}", "{sprite['name']}", {sprite['width']}, {sprite['height']});\n''')
+		f.write(f'''		inline const asset::Sprite {path_to_id(sprite['name'])}("/assets/sprites#{sprite['atlas']}", "{sprite['name']}", {sprite['width']}, {sprite['height']});\n''')
 		pass
 	f.write('	}\n')
 if len(label_infos) > 0:
 	f.write('	namespace labels {\n')
 	for label in label_infos:
-		f.write(f'''		static const asset::Label {path_to_id(label['name'])}("/assets/labels#{label['name']}", {label['height']});\n''')
+		f.write(f'''		inline const asset::Label {path_to_id(label['name'])}("/assets/labels#{label['name']}", {label['height']});\n''')
 		pass
 	f.write('	}\n')
 if len(sound_infos) > 0:
 	f.write('	namespace sounds {\n')
 	for sound in sound_infos:
-		f.write(f'''		static const asset::Sound {path_to_id(sound['name'])}("/assets/sounds#{sound['name']}", "{sound['name']}");\n''')
+		f.write(f'''		inline const asset::Sound {path_to_id(sound['name'])}("/assets/sounds#{sound['name']}", "{sound['name']}");\n''')
 		pass
 	f.write('	}\n')
 if len(particlefx_infos) > 0:
 	f.write('	namespace particlefx {\n')
 	for particlefx in particlefx_infos:
-		f.write(f'''		static const asset::ParticleFX {path_to_id(particlefx['name'])}("/assets/particlefx#{particlefx['name']}");\n''')
+		f.write(f'''		inline const asset::ParticleFX {path_to_id(particlefx['name'])}("/assets/particlefx#{particlefx['name']}");\n''')
 		pass
 	f.write('	}\n')
 f.write(

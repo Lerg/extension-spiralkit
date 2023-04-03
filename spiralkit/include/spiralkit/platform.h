@@ -11,6 +11,7 @@ namespace spiralkit {
 			static bool isHTML5;
 			static bool isMobile;
 			static bool isDesktop;
+			static bool isDebug;
 	};
 }
 

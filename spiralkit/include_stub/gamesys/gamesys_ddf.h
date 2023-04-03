@@ -35,6 +35,10 @@ namespace dmGameSystemDDF {
 		uint32_t m_PlayId;
 	};
 
+	struct StopSound {
+		static dmDDF::Descriptor *m_DDFDescriptor;
+	};
+
 }
 
 #endif

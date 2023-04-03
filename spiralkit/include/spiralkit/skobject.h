@@ -248,8 +248,10 @@ namespace spiralkit {
 
 			inline void ToBack(SkObject *child) {
 				uint32_t index = dmArrayUtil::GetIndexOf(&children, child);
-				dmArrayUtil::Remove(&children, index);
-				dmArrayUtil::Insert(&children, 0, child);
+				if (index == 0) {
+					return;
+				}
+				dmArrayUtil::Move(&children, index, 0);
 				for (uint32_t i = 0; i <= index; ++i) {
 					SetPositionZ(children[i], i);
 				}
@@ -262,8 +264,7 @@ namespace spiralkit {
 
 			inline void ToFront(SkObject *child) {
 				uint32_t index = dmArrayUtil::GetIndexOf(&children, child);
-				dmArrayUtil::Remove(&children, index);
-				children.Push(child);
+				dmArrayUtil::Move(&children, index, children.Size() - 1);
 				for (uint32_t i = index; i < children.Size(); ++i) {
 					SetPositionZ(children[i], i);
 				}

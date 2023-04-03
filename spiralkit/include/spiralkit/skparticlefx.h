@@ -4,7 +4,6 @@
 #include <gamesys/gamesys_ddf.h>
 #include "asset.h"
 #include "skobject.h"
-#include "spiralkit.h"
 
 namespace spiralkit {
 	class SkParticleFX : public SkObject {
