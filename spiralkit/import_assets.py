@@ -295,33 +295,31 @@ f.write(
 
 #include <spiralkit/asset.h>
 
-using namespace spiralkit;
-
 namespace app::assets {
 '''
 )
 if len(sprite_infos) > 0:
 	f.write('	namespace sprites {\n')
 	for sprite in sprite_infos:
-		f.write(f'''		inline const asset::Sprite {path_to_id(sprite['name'])}("/assets/sprites#{sprite['atlas']}", "{sprite['name']}", {sprite['width']}, {sprite['height']});\n''')
+		f.write(f'''		inline const spiralkit::asset::Sprite {path_to_id(sprite['name'])}("/assets/sprites#{sprite['atlas']}", "{sprite['name']}", {sprite['width']}, {sprite['height']});\n''')
 		pass
 	f.write('	}\n')
 if len(label_infos) > 0:
 	f.write('	namespace labels {\n')
 	for label in label_infos:
-		f.write(f'''		inline const asset::Label {path_to_id(label['name'])}("/assets/labels#{label['name']}", {label['height']});\n''')
+		f.write(f'''		inline const spiralkit::asset::Label {path_to_id(label['name'])}("/assets/labels#{label['name']}", {label['height']});\n''')
 		pass
 	f.write('	}\n')
 if len(sound_infos) > 0:
 	f.write('	namespace sounds {\n')
 	for sound in sound_infos:
-		f.write(f'''		inline const asset::Sound {path_to_id(sound['name'])}("/assets/sounds#{sound['name']}", "{sound['name']}");\n''')
+		f.write(f'''		inline const spiralkit::asset::Sound {path_to_id(sound['name'])}("/assets/sounds#{sound['name']}", "{sound['name']}");\n''')
 		pass
 	f.write('	}\n')
 if len(particlefx_infos) > 0:
 	f.write('	namespace particlefx {\n')
 	for particlefx in particlefx_infos:
-		f.write(f'''		inline const asset::ParticleFX {path_to_id(particlefx['name'])}("/assets/particlefx#{particlefx['name']}");\n''')
+		f.write(f'''		inline const spiralkit::asset::ParticleFX {path_to_id(particlefx['name'])}("/assets/particlefx#{particlefx['name']}");\n''')
 		pass
 	f.write('	}\n')
 f.write(

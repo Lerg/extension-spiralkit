@@ -2,6 +2,8 @@
 #include <spiralkit/scene_manager.h>
 #include <spiralkit/skobject.h>
 
+#include <spiralkit/mouse_interactive.h>
+
 namespace spiralkit {
 	bool MouseInteractive::OnMouseDefault(MouseInteractive &mouse_interactive, const MouseEvent &mouse_event) {
 		if (mouse_event.phase == InputEventPhase_Pressed) {

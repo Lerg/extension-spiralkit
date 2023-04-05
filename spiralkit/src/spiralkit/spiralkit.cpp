@@ -1,8 +1,11 @@
 #include <string.h>
-#include <spiralkit/spiralkit.h>
+#include <dlib/sys.h>
 #include <spiralkit/input_manager.h>
+#include <spiralkit/platform.h>
 #include <spiralkit/scene_manager.h>
 #include <spiralkit/sound_manager.h>
+
+#include <spiralkit/spiralkit.h>
 
 namespace spiralkit {
 	dmGameObject::HInstance Spiralkit::instance;
@@ -33,6 +36,12 @@ namespace spiralkit {
 		dmSys::EngineInfo engine_info;
 		dmSys::GetEngineInfo(&engine_info);
 		Platform::isDebug = engine_info.m_IsDebug;
+	}
+
+	void Spiralkit::SetInstance(dmGameObject::HInstance instance) {
+		Spiralkit::instance = instance;
+		collection = dmGameObject::GetCollection(instance);
+		urlSocket = dmGameObject::GetMessageSocket(collection);
 	}
 
 	void Spiralkit::OnUpdate(float dt) {

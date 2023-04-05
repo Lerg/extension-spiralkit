@@ -2,7 +2,6 @@
 #define SK_INPUT_EVENT_H
 
 #include <godot/core/math/vector2i.h>
-#include <dmsdk/gameobject/gameobject.h>
 
 namespace spiralkit {
 	enum InputEventType {

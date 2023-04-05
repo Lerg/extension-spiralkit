@@ -2,10 +2,14 @@
 #define SK_UI_BUTTON_H
 
 #include <functional>
+#include "../input_event.h"
 #include "../sksprite.h"
 #include "../sklabel.h"
-#include "../touch_interactive.h"
-#include "../mouse_interactive.h"
+
+namespace spiralkit {
+	class TouchInteractive;
+	class MouseInteractive;
+}
 
 namespace spiralkit::ui {
 	enum ButtonState {
@@ -30,50 +34,17 @@ namespace spiralkit::ui {
 			static bool _OnMouseDefault(MouseInteractive &mouse_interactive, const MouseEvent &mouse_event);
 
 		public:
-			ButtonCallback onPress = nullptr;
-			ButtonMoveCallback onMove = nullptr;
-			ButtonCallback onRelease = nullptr;
+			ButtonCallback onPress;
+			ButtonMoveCallback onMove;
+			ButtonCallback onRelease;
 
-			Button(asset::Sprite default_sprite, asset::Sprite pressed_sprite, asset::Label label, SkObject *parent = nullptr) {
-				InstanceIdentifierPair game_object = Defold::NewGameObject();
-				instance = game_object.instance;
-				identifier = game_object.identifier;
-				this->parent = parent;
-				Init();
-				_defaultSprite = default_sprite;
-				_pressedSprite = pressed_sprite;
-				_sprite = new SkSprite(_defaultSprite, this);
-				size = _sprite->size;
-				_label = new SkLabel(label, this);
-				_label->SetScale(0.25 * size.height / label.height);
+			Button(asset::Sprite default_sprite, asset::Sprite pressed_sprite, asset::Label label, SkObject *parent = nullptr);
 
-				_touchInteractive = new TouchInteractive(this);
-				_touchInteractive->onTouch = _OnTouchDefault;
-				_mouseInteractive = new MouseInteractive(this);
-				_mouseInteractive->onMouse = _OnMouseDefault;
-			}
+			~Button();
 
-			~Button() {
-				Delete();
-			}
+			void Delete();
 
-			void Delete() {
-				delete _touchInteractive;
-				delete _mouseInteractive;
-				SkObject::Delete();
-			}
-
-			inline void SetState(ButtonState state) {
-				_state = state;
-				switch (state) {
-					case ButtonState_Default:
-						_sprite->PlayAnimation(_defaultSprite);
-						break;
-					case ButtonState_Pressed:
-						_sprite->PlayAnimation(_pressedSprite);
-						break;
-				}
-			}
+			void SetState(ButtonState state);
 
 			inline SkLabel *GetLabel() {
 				return _label;
@@ -89,9 +60,7 @@ namespace spiralkit::ui {
 				SetState(_state);
 			}
 
-			void SetIsHighlighted(bool is_highlight) {
-				_sprite->AnimateComponent(_sprite->componentUrl.m_Fragment, spiralkit::hashes::effects_exposure, dmGameObject::PropertyVar(is_highlight ? 1.5 : 1), is_highlight ? 0.5 : 0.2, 0, dmGameObject::PLAYBACK_ONCE_FORWARD, dmEasing::TYPE_OUTQUAD);
-			}
+			void SetIsHighlighted(bool is_highlight);
 	};
 }
 

@@ -14,17 +14,9 @@ namespace spiralkit {
 			static dmMessage::HSocket urlSocket;
 
 			static void Init();
-
-			static void SetInstance(dmGameObject::HInstance instance) {
-				Spiralkit::instance = instance;
-				collection = dmGameObject::GetCollection(instance);
-				urlSocket = dmGameObject::GetMessageSocket(collection);
-			}
-
+			static void SetInstance(dmGameObject::HInstance instance);
 			static void OnUpdate(float dt);
-
 			static void OnInput(const dmGameObject::ComponentOnInputParams &params);
-
 			static void OnResize(uint32_t width, uint32_t height);
 	};
 }

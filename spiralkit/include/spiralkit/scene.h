@@ -1,9 +1,6 @@
 #ifndef SK_SCENE_H
 #define SK_SCENE_H
 
-#include <dmsdk/script/script.h>
-#include <dmsdk/gameobject/gameobject.h>
-#include <dmsdk/gamesys/script.h>
 #include "skobject.h"
 
 namespace spiralkit {
@@ -11,14 +8,7 @@ namespace spiralkit {
 		private:
 		public:
 			dmhash_t name;
-			Scene(dmhash_t name)
-			: name(name) {
-				const InstanceIdentifierPair game_object = Defold::NewGameObject();
-				instance = game_object.instance;
-				identifier = game_object.identifier;
-				Init();
-			};
-			~Scene() {};
+			Scene(dmhash_t name);
 			virtual void OnWillShow(void *userdata) {};
 			virtual void OnDidShow() {};
 			virtual void OnWillHide() {};

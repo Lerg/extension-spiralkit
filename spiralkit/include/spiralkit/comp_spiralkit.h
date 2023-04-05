@@ -29,12 +29,12 @@ namespace spiralkit {
 		return result;
 	}
 
-	dmGameObject::CreateResult CompSpiralkitCreate(const dmGameObject::ComponentCreateParams &params) {
+	static dmGameObject::CreateResult CompSpiralkitCreate(const dmGameObject::ComponentCreateParams &params) {
 		spiralkit::Spiralkit::SetInstance(params.m_Instance);
 		return dmGameObject::CREATE_RESULT_OK;
 	}
 
-	dmGameObject::CreateResult CompSpiralkitDestroy(const dmGameObject::ComponentDestroyParams &params) {
+	static dmGameObject::CreateResult CompSpiralkitDestroy(const dmGameObject::ComponentDestroyParams &params) {
 		return dmGameObject::CREATE_RESULT_OK;
 	}
 

@@ -1,7 +1,8 @@
 #include <gamesys/gamesys_ddf.h>
-#include <spiralkit/spiralkit.h>
-#include <spiralkit/sound_manager.h>
 #include <spiralkit/dmsdk.h>
+#include <spiralkit/spiralkit.h>
+
+#include <spiralkit/sound_manager.h>
 
 namespace spiralkit {
 	dmhash_t SoundManager::_assetPath;

@@ -1,9 +1,11 @@
 #ifndef SK_DMSDK_H
 #define SK_DMSDK_H
 
+#include <gamesys/gamesys_ddf.h>
 #include <dmsdk/gameobject/gameobject.h>
-#include <dmsdk/lua/lua.h>
 #include <dlib/easing.h>
+
+struct lua_State;
 
 namespace dmGameObject {
 	void AcquireInputFocus(HCollection collection, HInstance instance);

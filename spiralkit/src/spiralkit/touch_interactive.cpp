@@ -2,6 +2,8 @@
 #include <spiralkit/scene_manager.h>
 #include <spiralkit/skobject.h>
 
+#include <spiralkit/touch_interactive.h>
+
 namespace spiralkit {
 	bool TouchInteractive::OnTouchDefault(TouchInteractive &touch_interactive, const TouchEvent &touch_event) {
 		if (touch_event.phase == InputEventPhase_Pressed) {
